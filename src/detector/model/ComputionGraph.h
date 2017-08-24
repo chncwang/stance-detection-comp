@@ -15,7 +15,7 @@ public:
   LSTM1Builder _left_to_right_tweet_lstm;
   LSTM1Builder _right_to_left_tweet_lstm;
   std::vector<ConcatNode> _lstm_nodes;
-  MinPoolNode _min_pool;
+  AvgPoolNode _avg_pool;
 
   Graph *_graph;
   ModelParams *_modelParams;
@@ -28,7 +28,7 @@ public:
     _left_to_right_tweet_lstm.resize(length_upper_bound);
     _right_to_left_tweet_lstm.resize(length_upper_bound);
     _lstm_nodes.resize(length_upper_bound);
-    _min_pool.setParam(length_upper_bound);
+    _avg_pool.setParam(length_upper_bound);
   }
 
 public:
@@ -45,7 +45,7 @@ public:
         n.init(opts.hiddenSize * 2, -1);
     }
 
-    _min_pool.init(opts.hiddenSize * 2, -1);
+    _avg_pool.init(opts.hiddenSize * 2, -1);
 
     _neural_output.init(opts.labelSize, -1);
     _neural_output.setParam(&model.olayer_linear);
@@ -72,8 +72,8 @@ public:
 
     std::vector<PNode> lstm_ptrs = toPointers<ConcatNode, Node>(_lstm_nodes, feature.m_tweet_words.size());
 
-    _min_pool.forward(_graph, lstm_ptrs);
-    _neural_output.forward(_graph, &_min_pool);
+    _avg_pool.forward(_graph, lstm_ptrs);
+    _neural_output.forward(_graph, &_avg_pool);
   }
 };
 
