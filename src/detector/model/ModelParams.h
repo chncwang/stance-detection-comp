@@ -9,11 +9,10 @@ class ModelParams{
 public:
 	LookupTable words; // should be initialized outside
 	Alphabet wordAlpha; // should be initialized outside
-	Alphabet featAlpha;
-	UniParams hidden_linear;
 	UniParams olayer_linear; // output
 	LSTM1Params tweet_left_to_right_lstm_params;
 	LSTM1Params tweet_right_to_left_lstm_params;
+    SelfAttentionParams self_attention_params;
 public:
 	MySoftMaxLoss loss;
 
@@ -29,11 +28,11 @@ public:
 		opts.wordWindow = opts.wordContext * 2 + 1;
 		opts.windowOutput = opts.wordDim * opts.wordWindow;
 		opts.labelSize = 3;
-		hidden_linear.initial(opts.hiddenSize, words.nDim, true);
 		opts.inputSize = opts.hiddenSize * 2;
 		olayer_linear.initial(opts.labelSize, opts.inputSize, true);
 		tweet_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
 		tweet_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
+        self_attention_params.initial(opts.hiddenSize * 2);
 		return true;
 	}
 
@@ -53,10 +52,10 @@ public:
 
 	void exportModelParams(ModelUpdate& ada){
 		words.exportAdaParams(ada);
-		hidden_linear.exportAdaParams(ada);
 		olayer_linear.exportAdaParams(ada);
 		tweet_left_to_right_lstm_params.exportAdaParams(ada);
 		tweet_right_to_left_lstm_params.exportAdaParams(ada);
+        self_attention_params.exportAdaParams(ada);
 	}
 
 
@@ -84,14 +83,12 @@ public:
 	void saveModel(std::ofstream &os) const{
 		wordAlpha.write(os);
 		words.save(os);
-		hidden_linear.save(os);
 		olayer_linear.save(os);
 	}
 
 	void loadModel(std::ifstream &is){
 		wordAlpha.read(is);
 		words.load(is, &wordAlpha);
-		hidden_linear.load(is);
 		olayer_linear.load(is);
 	}
 

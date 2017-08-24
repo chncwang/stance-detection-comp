@@ -15,7 +15,7 @@ public:
   LSTM1Builder _left_to_right_tweet_lstm;
   LSTM1Builder _right_to_left_tweet_lstm;
   std::vector<ConcatNode> _lstm_nodes;
-  MaxPoolNode _max_pool;
+  SelfAttentionBuilder _self_attention_builder;
 
   Graph *_graph;
   ModelParams *_modelParams;
@@ -28,7 +28,7 @@ public:
     _left_to_right_tweet_lstm.resize(length_upper_bound);
     _right_to_left_tweet_lstm.resize(length_upper_bound);
     _lstm_nodes.resize(length_upper_bound);
-    _max_pool.setParam(length_upper_bound);
+    _self_attention_builder.resize(length_upper_bound);
   }
 
 public:
@@ -45,7 +45,7 @@ public:
         n.init(opts.hiddenSize * 2, -1);
     }
 
-    _max_pool.init(opts.hiddenSize * 2, -1);
+    _self_attention_builder.init(&model.self_attention_params);
 
     _neural_output.init(opts.labelSize, -1);
     _neural_output.setParam(&model.olayer_linear);
@@ -71,9 +71,9 @@ public:
     }
 
     std::vector<PNode> lstm_ptrs = toPointers<ConcatNode, Node>(_lstm_nodes, feature.m_tweet_words.size());
+    _self_attention_builder.forward(_graph, lstm_ptrs);
 
-    _max_pool.forward(_graph, lstm_ptrs);
-    _neural_output.forward(_graph, &_max_pool);
+    _neural_output.forward(_graph, &_self_attention_builder._hidden);
   }
 };
 
