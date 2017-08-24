@@ -374,7 +374,7 @@ void Classifier::loadModelFile(const string &inputModelFile) {
   ifstream is(inputModelFile);
   if (is.is_open()) {
     m_driver._hyperparams.loadModel(is);
-    m_driver._modelparams.loadModel(is, &m_driver._aligned_mem);
+    m_driver._modelparams.loadModel(is);
     is.close();
   }
   else

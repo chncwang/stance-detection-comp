@@ -11,16 +11,14 @@ public:
 	Alphabet wordAlpha; // should be initialized outside
 	Alphabet featAlpha;
 	UniParams hidden_linear;
-	BiParams olayer_linear; // output
+	UniParams olayer_linear; // output
 	LSTM1Params tweet_left_to_right_lstm_params;
 	LSTM1Params tweet_right_to_left_lstm_params;
-	LSTM1Params target_left_to_right_lstm_params;
-	LSTM1Params target_right_to_left_lstm_params;
 public:
 	MySoftMaxLoss loss;
 
 public:
-	bool initial(HyperParams& opts, AlignedMemoryPool* mem = NULL){
+	bool initial(HyperParams& opts){
 
 		// some model parameters should be initialized outside
 		if (words.nVSize <= 0){
@@ -31,17 +29,15 @@ public:
 		opts.wordWindow = opts.wordContext * 2 + 1;
 		opts.windowOutput = opts.wordDim * opts.wordWindow;
 		opts.labelSize = 3;
-		hidden_linear.initial(opts.hiddenSize, words.nDim, true, mem);
+		hidden_linear.initial(opts.hiddenSize, words.nDim, true);
 		opts.inputSize = opts.hiddenSize * 2;
-		olayer_linear.initial(opts.labelSize, opts.inputSize, true, mem);
-		tweet_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim, mem);
-		tweet_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim, mem);
-		target_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim, mem);
-		target_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim, mem);
+		olayer_linear.initial(opts.labelSize, opts.inputSize, true);
+		tweet_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
+		tweet_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
 		return true;
 	}
 
-	bool TestInitial(HyperParams& opts, AlignedMemoryPool* mem = NULL){
+	bool TestInitial(HyperParams& opts){
 
 		// some model parameters should be initialized outside
 		if (words.nVSize <= 0 ){
@@ -61,8 +57,6 @@ public:
 		olayer_linear.exportAdaParams(ada);
 		tweet_left_to_right_lstm_params.exportAdaParams(ada);
 		tweet_right_to_left_lstm_params.exportAdaParams(ada);
-		target_left_to_right_lstm_params.exportAdaParams(ada);
-		target_right_to_left_lstm_params.exportAdaParams(ada);
 	}
 
 
@@ -71,8 +65,7 @@ public:
 		//checkgrad.add(&hidden_linear.W, "hidden w");
 		//checkgrad.add(&hidden_linear.b, "hidden b");
 		checkgrad.add(&olayer_linear.b, "output layer W");
-		checkgrad.add(&olayer_linear.W1, "output layer W");
-		checkgrad.add(&olayer_linear.W2, "output layer W");
+		checkgrad.add(&olayer_linear.W, "output layer W");
 		checkgrad.add(&tweet_left_to_right_lstm_params.cell.b, "LSTM cell b");
 		checkgrad.add(&tweet_left_to_right_lstm_params.cell.W1, "LSTM cell w1");
 		checkgrad.add(&tweet_left_to_right_lstm_params.cell.W2, "LSTM cell w2");
@@ -95,11 +88,11 @@ public:
 		olayer_linear.save(os);
 	}
 
-	void loadModel(std::ifstream &is, AlignedMemoryPool* mem = NULL){
+	void loadModel(std::ifstream &is){
 		wordAlpha.read(is);
-		words.load(is, &wordAlpha, mem);
-		hidden_linear.load(is, mem);
-		olayer_linear.load(is, mem);
+		words.load(is, &wordAlpha);
+		hidden_linear.load(is);
+		olayer_linear.load(is);
 	}
 
 };

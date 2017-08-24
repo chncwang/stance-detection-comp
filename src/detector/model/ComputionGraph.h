@@ -4,21 +4,18 @@
 #include "ModelParams.h"
 #include "Utf.h"
 #include "LSTM1.h"
+#include "MyLib.h"
 
 
 // Each model consists of two parts, building neural graph and defining output losses.
 class GraphBuilder {
 public:
-  std::vector<LookupNode> _target_nodes;
   std::vector<LookupNode> _tweet_nodes;
-  ConcatNode _tweet_concat_node;
-  ConcatNode _target_concat_node;
-  BiNode _neural_output;
-  AlignedMemoryPool *_pool;
-  LSTM1Builder _left_to_right_target_lstm;
-  LSTM1Builder _right_to_left_target_lstm;
+  UniNode _neural_output;
   LSTM1Builder _left_to_right_tweet_lstm;
   LSTM1Builder _right_to_left_tweet_lstm;
+  std::vector<ConcatNode> _lstm_nodes;
+  MaxPoolNode _max_pool;
 
   Graph *_graph;
   ModelParams *_modelParams;
@@ -27,41 +24,31 @@ public:
 public:
   //allocate enough nodes
   void createNodes(int length_upper_bound) {
-
-    _target_nodes.resize(length_upper_bound);
     _tweet_nodes.resize(length_upper_bound);
-    _left_to_right_target_lstm.resize(length_upper_bound);
-    _right_to_left_target_lstm.resize(length_upper_bound);
     _left_to_right_tweet_lstm.resize(length_upper_bound);
     _right_to_left_tweet_lstm.resize(length_upper_bound);
+    _lstm_nodes.resize(length_upper_bound);
   }
 
 public:
-  void initial(Graph *pcg, ModelParams &model, HyperParams &opts,
-    AlignedMemoryPool *mem = NULL) {
+  void initial(Graph *pcg, ModelParams &model, HyperParams &opts) {
     _graph = pcg;
-    for (LookupNode &n : _target_nodes) {
-      n.init(opts.wordDim, opts.dropProb, mem);
-      n.setParam(&model.words);
-    }
     for (LookupNode &n : _tweet_nodes) {
-      n.init(opts.wordDim, opts.dropProb, mem);
+      n.init(opts.wordDim, opts.dropProb);
       n.setParam(&model.words);
     }
-    _left_to_right_target_lstm.init(&model.target_left_to_right_lstm_params, opts.dropProb, true, _pool);
+    _left_to_right_tweet_lstm.init(&model.tweet_left_to_right_lstm_params, opts.dropProb, true);
+    _right_to_left_tweet_lstm.init(&model.tweet_right_to_left_lstm_params, opts.dropProb, false);
 
-    _right_to_left_target_lstm.init(&model.target_right_to_left_lstm_params, opts.dropProb, false, _pool);
+    for (auto &n : _lstm_nodes) {
+        n.init(opts.hiddenSize * 2, -1);
+    }
 
-    _left_to_right_tweet_lstm.init(&model.tweet_left_to_right_lstm_params, opts.dropProb, true, _pool);
+    _max_pool.init(opts.hiddenSize * 2, -1);
 
-    _right_to_left_tweet_lstm.init(&model.tweet_right_to_left_lstm_params, opts.dropProb, false, _pool);
-
-    _tweet_concat_node.init(opts.hiddenSize * 2, -1, mem);
-    _target_concat_node.init(opts.hiddenSize * 2, -1, mem);
-    _neural_output.init(opts.labelSize, -1, mem);
+    _neural_output.init(opts.labelSize, -1);
     _neural_output.setParam(&model.olayer_linear);
     _modelParams = &model;
-    _pool = mem;
   }
 
 public:
@@ -74,37 +61,23 @@ public:
       normalizedTargetWords.push_back(normalize_to_lowerwithdigit(w));
     }
 
-    for (int i = 0; i < normalizedTargetWords.size(); ++i) {
-      _target_nodes.at(i).forward(_graph, normalizedTargetWords.at(i));
-    }
-
-    std::vector<PNode> target_nodes_ptrs;
-    for (int i = 0; i < normalizedTargetWords.size(); ++i) {
-      auto &n = _target_nodes.at(i);
-      target_nodes_ptrs.push_back(&n);
-    }
-
-    _left_to_right_target_lstm.forward(_graph, target_nodes_ptrs);
-    _right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
-
-    _target_concat_node.forward(_graph, &_left_to_right_target_lstm._hiddens.at(normalizedTargetWords.size() - 1), &_right_to_left_target_lstm._hiddens.at(0));
-
     for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
       _tweet_nodes.at(i).forward(_graph, feature.m_tweet_words.at(i));
     }
 
-    std::vector<PNode> tweet_nodes_ptrs;
-    for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
-      auto &n = _tweet_nodes.at(i);
-      tweet_nodes_ptrs.push_back(&n);
-    }
+    std::vector<PNode> tweet_nodes_ptrs = toPointers<LookupNode, Node>(_tweet_nodes, feature.m_tweet_words.size());
 
     _left_to_right_tweet_lstm.forward(_graph, tweet_nodes_ptrs);
     _right_to_left_tweet_lstm.forward(_graph, tweet_nodes_ptrs);
 
-    _tweet_concat_node.forward(_graph, &_left_to_right_tweet_lstm._hiddens.at(feature.m_tweet_words.size() - 1), &_right_to_left_tweet_lstm._hiddens.at(0));
+    for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
+        _lstm_nodes.at(i).forward(_graph, &_left_to_right_tweet_lstm._hiddens.at(i), &_right_to_left_tweet_lstm._hiddens.at(i));
+    }
 
-    _neural_output.forward(_graph, &_target_concat_node, &_tweet_concat_node);
+    std::vector<PNode> lstm_ptrs = toPointers<ConcatNode, Node>(_lstm_nodes);
+
+    _max_pool.forward(_graph, lstm_ptrs);
+    _neural_output.forward(_graph, &_max_pool);
   }
 };
 

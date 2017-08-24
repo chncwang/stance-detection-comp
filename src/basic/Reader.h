@@ -8,7 +8,6 @@
 #include <vector>
 #include <string>
 #include <regex>
-#include <boost/algorithm/string.hpp>
 using namespace std;
 
 #include "Instance.h"
@@ -145,7 +144,7 @@ void readLineToInstance(const string &line, Instance *instance) {
 	//std::cout << "Reader readLineToInstance sentence:" << sentence << "|||" << endl;
 
 	vector<string> rawwords;
-	boost::split(rawwords, substring, boost::is_any_of(" "));
+    split_bychar(substring, rawwords);
 	vector<string> words;
 	for (string & rawword : rawwords) {
 		if (rawword.empty()) continue;
