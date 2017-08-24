@@ -28,6 +28,7 @@ public:
     _left_to_right_tweet_lstm.resize(length_upper_bound);
     _right_to_left_tweet_lstm.resize(length_upper_bound);
     _lstm_nodes.resize(length_upper_bound);
+    _max_pool.setParam(length_upper_bound);
   }
 
 public:
@@ -56,11 +57,6 @@ public:
   inline void forward(const Feature &feature, bool bTrain = false) {
     _graph->train = bTrain;
 
-    vector<std::string> normalizedTargetWords;
-    for (const std::string &w : feature.m_target_words) {
-      normalizedTargetWords.push_back(normalize_to_lowerwithdigit(w));
-    }
-
     for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
       _tweet_nodes.at(i).forward(_graph, feature.m_tweet_words.at(i));
     }
@@ -74,7 +70,7 @@ public:
         _lstm_nodes.at(i).forward(_graph, &_left_to_right_tweet_lstm._hiddens.at(i), &_right_to_left_tweet_lstm._hiddens.at(i));
     }
 
-    std::vector<PNode> lstm_ptrs = toPointers<ConcatNode, Node>(_lstm_nodes);
+    std::vector<PNode> lstm_ptrs = toPointers<ConcatNode, Node>(_lstm_nodes, feature.m_tweet_words.size());
 
     _max_pool.forward(_graph, lstm_ptrs);
     _neural_output.forward(_graph, &_max_pool);
