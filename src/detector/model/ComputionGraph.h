@@ -65,7 +65,7 @@ public:
             n.init(opts.hiddenSize * 2, -1);
         }
 
-        _target_pool.init(opts.hiddenSize * 2, opts.dropProb);
+        _target_pool.init(opts.hiddenSize * 2, -1);
         _attention_builder.init(&model._attention_params);
 
         _neural_output.init(opts.labelSize, -1);
