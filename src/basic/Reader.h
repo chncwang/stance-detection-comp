@@ -1,4 +1,4 @@
-#ifndef _JST_READER_
+﻿#ifndef _JST_READER_
 #define _JST_READER_
 
 #pragma once

@@ -12,6 +12,7 @@ class GraphBuilder {
 public:
     std::vector<LookupNode> _tweet_nodes;
     std::vector<LookupNode> _target_nodes;
+    std::vector<LookupNode> _target_tfidf_nodes;
     UniNode _neural_output;
     LSTM1Builder _left_to_right_tweet_lstm;
     LSTM1Builder _right_to_left_tweet_lstm;
@@ -35,6 +36,7 @@ public:
         _right_to_left_tweet_lstm.resize(length_upper_bound);
         _left_to_right_target_lstm.resize(length_upper_bound);
         _right_to_left_target_lstm.resize(length_upper_bound);
+        _target_tfidf_nodes.resize(length_upper_bound);
         _tweet_lstm_nodes.resize(length_upper_bound);
         _target_lstm_nodes.resize(length_upper_bound);
         _attention_builder.resize(length_upper_bound);
@@ -52,6 +54,11 @@ public:
             n.init(opts.wordDim, opts.dropProb);
             n.setParam(&model.words);
         }
+
+        for (auto &n : _target_tfidf_nodes) {
+            n.init(opts.wordDim, opts.dropProb);
+            n.setParam(&model.words);
+        }
         _left_to_right_target_lstm.init(&model.target_left_to_right_lstm_params, opts.dropProb, true);
         _right_to_left_target_lstm.init(&model.target_right_to_left_lstm_params, opts.dropProb, false);
         _left_to_right_tweet_lstm.init(&model.tweet_left_to_right_lstm_params, opts.dropProb, true);
@@ -65,7 +72,8 @@ public:
             n.init(opts.hiddenSize * 2, -1);
         }
 
-        _target_pool.init(opts.hiddenSize * 2, opts.dropProb);
+        //_target_pool.init(opts.hiddenSize * 2, opts.dropProb);
+        _target_pool.init(opts.wordDim, opts.dropProb);
         _attention_builder.init(&model._attention_params);
 
         _neural_output.init(opts.labelSize, -1);
@@ -78,17 +86,22 @@ public:
     inline void forward(const Feature &feature, bool bTrain = false) {
         _graph->train = bTrain;
 
-        for (int i = 0; i < feature.m_target_words.size(); ++i) {
-            _target_nodes.at(i).forward(_graph, feature.m_target_words.at(i));
+        //for (int i = 0; i < feature.m_target_words.size(); ++i) {
+        //    _target_nodes.at(i).forward(_graph, feature.m_target_words.at(i));
+        //}
+        //std::vector<PNode> target_nodes_ptrs = toPointers<LookupNode, Node>(_target_nodes, feature.m_target_words.size());
+        //_left_to_right_target_lstm.forward(_graph, target_nodes_ptrs);
+        //_right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
+        //for (int i = 0; i < feature.m_target_words.size(); ++i) {
+        //    _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
+        //}
+        //std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
+
+        for (int i = 0; i < feature.m_target_tfidf_words.size(); ++i) {
+            _target_tfidf_nodes.at(i).forward(_graph, feature.m_target_tfidf_words.at(i));
         }
-        std::vector<PNode> target_nodes_ptrs = toPointers<LookupNode, Node>(_target_nodes, feature.m_target_words.size());
-        _left_to_right_target_lstm.forward(_graph, target_nodes_ptrs);
-        _right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
-        for (int i = 0; i < feature.m_target_words.size(); ++i) {
-            _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
-        }
-        std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
-        _target_pool.forward(_graph, target_lstm_ptrs);
+
+        _target_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words.size()));
 
         for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
             _tweet_nodes.at(i).forward(_graph, feature.m_tweet_words.at(i));

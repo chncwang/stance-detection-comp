@@ -98,6 +98,7 @@ void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
   feat.m_tweet_words = pInstance->m_tweet_words;
   feat.m_target_words = pInstance->m_target_words;
   feat.m_sparse_feats = pInstance->m_sparse_feats;
+  feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
 }
 
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
