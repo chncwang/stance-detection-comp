@@ -293,7 +293,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
                 for (int idx = 0; idx < testExamples.size(); idx++) {
                     int excluded_class = -1;
                     if (m_options.postProcess) {
-                        excluded_class = isTargetWordInTweet(devExamples.at(idx).m_feature) ? Stance::NONE : -1;
+                        excluded_class = isTargetWordInTweet(testExamples.at(idx).m_feature) ? Stance::NONE : -1;
                     }
                     Stance stance = predict(testExamples[idx].m_feature, excluded_class);
 
