@@ -30,7 +30,7 @@ public:
 	int wordcontext;
 	bool wordEmbFineTune;
 
-
+        std::string ratios;
 
 	int cnnLayerSize;
 	int verboseIter;
@@ -55,6 +55,7 @@ public:
 		regParameter = 1e-8;
 		dropProb = 0.0;
 		hiddenDropProb = 0.0;
+                ratios = "1:1:1";
 
 		hiddenSize = 100;
 		wordEmbSize = 50;
@@ -128,6 +129,9 @@ public:
 				outBest = pr.second;
 			if (pr.first == "seg")
 				seg = (pr.second == "true") ? true : false;
+                        if (pr.first == "ratios") {
+                            ratios = pr.second;
+                        }
 
 			if (pr.first == "wordFile")
 				wordFile = pr.second;
@@ -163,6 +167,7 @@ public:
 		std::cout << "seg = " << seg << std::endl;
 
 		std::cout << "wordFile = " << wordFile << std::endl;
+		std::cout << "ratios = " << ratios << std::endl;
 	}
 
 	void load(const std::string& infile) {
@@ -181,6 +186,16 @@ public:
 		inf.close();
 		setOptions(vecLine);
 	}
+
+        std::array<float, 3> getRatios() {
+            std::vector<string> v;
+            split_bychar(ratios, v, ':');
+            std::array<float, 3> result;
+            for (int i = 0; i< 3; ++i) {
+                result.at(i) = std::stof(v.at(i));
+            }
+            return result;
+        }
 };
 
 #endif
