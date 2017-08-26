@@ -8,3 +8,5 @@ outBest = .debug
 hiddenSize = 50
 wordEmbSize = 100
 adaAlpha = 0.001
+ratios = 0:0:0
+postProcess = true
