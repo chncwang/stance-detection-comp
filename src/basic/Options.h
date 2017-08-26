@@ -30,7 +30,7 @@ public:
 	int wordcontext;
 	bool wordEmbFineTune;
 
-
+    bool postProcess;
 
 	int cnnLayerSize;
 	int verboseIter;
@@ -64,6 +64,7 @@ public:
 		cnnLayerSize = 2;
 		verboseIter = 100;
 		saveIntermediate = true;
+        postProcess = false;
 		train = false;
 		maxInstance = -1;
 		testFiles.clear();
@@ -131,6 +132,9 @@ public:
 
 			if (pr.first == "wordFile")
 				wordFile = pr.second;
+
+            if (pr.first == "postProcess")
+                postProcess = (pr.second == "true");
 		}
 	}
 
@@ -163,6 +167,7 @@ public:
 		std::cout << "seg = " << seg << std::endl;
 
 		std::cout << "wordFile = " << wordFile << std::endl;
+        std::cout << "postProcess = "<< postProcess << std::endl;
 	}
 
 	void load(const std::string& infile) {

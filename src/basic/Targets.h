@@ -49,10 +49,11 @@ bool isTargetWordInTweet(const Feature &feature) {
 		abort();
 	}
 	for (const std::string &keyword : keywords) {
-		auto it =std::find(feature.m_tweet_words.begin(), feature.m_tweet_words.end(), keyword);
-		if (it != feature.m_tweet_words.end()) {
-			return true;
-		}
+        for (const std::string &tweetword : feature.m_tweet_words) {
+            if (tweetword.find(keyword) != std::string::npos) {
+                return true;
+            }
+        }
 	}
 
 	return false;
