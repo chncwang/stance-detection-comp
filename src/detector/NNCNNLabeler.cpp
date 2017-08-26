@@ -4,6 +4,7 @@
 #include <chrono> 
 #include "Argument_helper.h"
 #include "Reader.h"
+#include <algorithm>
 
 void printBalancedStancesCounts(const std::vector<Example> &examples, const std::vector<int> &indexes) {
     std::array<int, 3> counts = { 0, 0, 0 };
@@ -118,7 +119,7 @@ void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
 }
 
 void Classifier::initialExamples(const vector<Instance> &vecInsts,
-    vector<Example> &vecExams) {
+        vector<Example> &vecExams) {
     int numInstance;
     for (numInstance = 0; numInstance < vecInsts.size(); numInstance++) {
         const Instance *pInstance = &vecInsts[numInstance];
@@ -129,8 +130,8 @@ void Classifier::initialExamples(const vector<Instance> &vecInsts,
 }
 
 void Classifier::train(const string &trainFile, const string &devFile,
-    const string &testFile, const string &modelFile,
-    const string &optionFile) {
+	const string &testFile, const string &modelFile,
+	const string &optionFile) {
     if (optionFile != "")
         m_options.load(optionFile);
     m_options.showOptions();
@@ -175,10 +176,10 @@ void Classifier::train(const string &trainFile, const string &devFile,
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
-            m_options.wordFile, m_options.wordEmbFineTune);
+                m_options.wordFile, m_options.wordEmbFineTune);
     } else {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
-            m_options.wordEmbSize, m_options.wordEmbFineTune);
+                m_options.wordEmbSize, m_options.wordEmbFineTune);
     }
 
     m_driver._hyperparams.setRequared(m_options);
@@ -277,6 +278,8 @@ void Classifier::train(const string &trainFile, const string &devFile,
             favor.print();
             std::cout << "against:" << std::endl;
             against.print();
+            double devAvg = (favor.getFMeasure() + against.getFMeasure()) * 0.5;
+            std::cout << "dev avg:" << devAvg << std::endl;
 
             if (!m_options.outBest.empty() > bestDIS) {
                 /*m_pipe.outputAllInstances(devFile + m_options.outBest,
@@ -320,13 +323,13 @@ void Classifier::train(const string &trainFile, const string &devFile,
                   }*/
             }
 
-            double avgFMeasure = (favor.getFMeasure() + against.getFMeasure()) * 0.5;
-            if (m_options.saveIntermediate && avgFMeasure > bestDIS) {
+            float targetFMeasure = devAvg;
+            if (m_options.saveIntermediate && targetFMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
-                    << " now is " << avgFMeasure << ". Saving model file.." << std::endl;
-                std::cout << "laozhongyi_" << avgFMeasure << std::endl;
+                    << " now is " << targetFMeasure << ". Saving model file.." << std::endl;
+                std::cout << "laozhongyi_" << targetFMeasure << std::endl;
                 non_exceeds_time = 0;
-                bestDIS = avgFMeasure;
+                bestDIS = targetFMeasure;
                 writeModelFile(modelFile);
             }
         }
@@ -342,7 +345,7 @@ Stance Classifier::predict(const Feature &feature) {
 }
 
 void Classifier::test(const string &testFile, const string &outputFile,
-    const string &modelFile) {
+        const string &modelFile) {
     loadModelFile(modelFile);
     m_driver.TestInitial();
     vector<Instance> testInsts = readInstancesFromFile(testFile);
