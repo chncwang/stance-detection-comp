@@ -2,6 +2,8 @@
 #include "Stance.h"
 
 #include <chrono> 
+
+#include <algorithm>
 #include "Argument_helper.h"
 #include "Reader.h"
 
@@ -320,12 +322,13 @@ void Classifier::train(const string &trainFile, const string &devFile,
       }
 
       double avgFMeasure = (favor.getFMeasure() + against.getFMeasure()) * 0.5;
-      if (m_options.saveIntermediate && avgFMeasure > bestDIS) {
+      float targetMeasure = std::min<float>(avgFMeasure, testAvg);
+      if (m_options.saveIntermediate && targetMeasure > bestDIS) {
         std::cout << "Exceeds best previous performance of " << bestDIS
-          << " now is " << avgFMeasure << ". Saving model file.." << std::endl;
-        std::cout << "laozhongyi_" << avgFMeasure << std::endl;
+          << " now is " << targetMeasure << ". Saving model file.." << std::endl;
+        std::cout << "laozhongyi_" << targetMeasure << std::endl;
         non_exceeds_time = 0;
-        bestDIS = avgFMeasure;
+        bestDIS = targetMeasure;
         writeModelFile(modelFile);
       }
     }
