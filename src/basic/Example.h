@@ -39,7 +39,18 @@ public:
 	}
 };
 
-vector<int> getClassBalancedIndexes(const std::vector<Example> &examples) {
+vector<int> getClassBalancedIndexes(const std::vector<Example> &examples, const std::array<float, 3>& ratios) {
+    if (isEqual(ratios.at(0), 0)) {
+        assert(isEqual(ratios.at(1), 0));
+        assert(isEqual(ratios.at(2), 0));
+
+        std::vector<int> indexes;
+        for (int i = 0; i < examples.size(); ++i) {
+            indexes.push_back(i);
+        }
+        return indexes;
+    }
+
 	std::array<std::vector<int>, 3> classSpecifiedIndexesArr;
 	for (int i = 0; i < examples.size(); ++i) {
 		const Example &example = examples.at(i);
@@ -50,19 +61,22 @@ vector<int> getClassBalancedIndexes(const std::vector<Example> &examples) {
 		std::random_shuffle(v.begin(), v.end());
 	}
 
-	std::array<int, 3> counters = { classSpecifiedIndexesArr.at(0).size(), classSpecifiedIndexesArr.at(1).size(), classSpecifiedIndexesArr.at(2).size() };
+	std::array<int, 3> counters = { classSpecifiedIndexesArr.at(0).size() / ratios.at(0),
+        classSpecifiedIndexesArr.at(1).size() / ratios.at(1),
+        classSpecifiedIndexesArr.at(2).size() / ratios.at(2) };
 
 	int minCounter = *std::min_element(counters.begin(), counters.end());
 	std::vector<int> indexes;
 
+    int x = 0;
 	for (auto & v : classSpecifiedIndexesArr) {
-		for (int i = 0; i < minCounter; ++i) {
+		for (int i = 0; i < minCounter * ratios.at(x); ++i) {
 			indexes.push_back(v.at(i));
 		}
+        x++;
 	}
 
 	std::random_shuffle(indexes.begin(), indexes.end());
-	assert(indexes.size() == 3 * minCounter);
 	return indexes;
 }
 
