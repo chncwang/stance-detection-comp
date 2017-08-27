@@ -125,13 +125,13 @@ public:
         return cost;
     }
 
-    inline void predict(const Feature &feature, Stance &result) {
+    inline void predict(const Feature &feature, Stance &result, int excluded_class) {
         _cg.clearValue();
         _builders[0].forward(feature);
         _cg.compute();
 
         int intResult;
-        _modelparams.loss.predict(&_builders[0]._neural_output, intResult);
+        _modelparams.loss.predict(&_builders[0]._neural_output, intResult, excluded_class );
         result = static_cast<Stance>(intResult);
     }
 

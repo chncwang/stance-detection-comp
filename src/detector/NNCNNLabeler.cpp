@@ -2,6 +2,8 @@
 #include "Stance.h"
 
 #include <chrono> 
+
+#include <algorithm>
 #include "Argument_helper.h"
 #include "Reader.h"
 #include <algorithm>
@@ -130,8 +132,8 @@ void Classifier::initialExamples(const vector<Instance> &vecInsts,
 }
 
 void Classifier::train(const string &trainFile, const string &devFile,
-	const string &testFile, const string &modelFile,
-	const string &optionFile) {
+    const string &testFile, const string &modelFile,
+    const string &optionFile) {
     if (optionFile != "")
         m_options.load(optionFile);
     m_options.showOptions();
@@ -176,10 +178,10 @@ void Classifier::train(const string &trainFile, const string &devFile,
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
-                m_options.wordFile, m_options.wordEmbFineTune);
+            m_options.wordFile, m_options.wordEmbFineTune);
     } else {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
-                m_options.wordEmbSize, m_options.wordEmbFineTune);
+            m_options.wordEmbSize, m_options.wordEmbFineTune);
     }
 
     m_driver._hyperparams.setRequared(m_options);
@@ -258,7 +260,11 @@ void Classifier::train(const string &trainFile, const string &devFile,
             if (!m_options.outBest.empty())
                 decodeInstResults.clear();
             for (int idx = 0; idx < devExamples.size(); idx++) {
-                Stance result = predict(devExamples[idx].m_feature);
+                int excluded_class = -1;
+                if (m_options.postProcess) {
+                    excluded_class = isTargetWordInTweet(devExamples.at(idx).m_feature) ? Stance::NONE : -1;
+                }
+                Stance result = predict(devExamples[idx].m_feature, excluded_class);
 
                 devInsts[idx].evaluate(result, favor, against);
 
@@ -294,7 +300,11 @@ void Classifier::train(const string &trainFile, const string &devFile,
                     decodeInstResults.clear();
                 Metric favor, against;
                 for (int idx = 0; idx < testExamples.size(); idx++) {
-                    Stance stance = predict(testExamples[idx].m_feature);
+                    int excluded_class = -1;
+                    if (m_options.postProcess) {
+                        excluded_class = isTargetWordInTweet(testExamples.at(idx).m_feature) ? Stance::NONE : -1;
+                    }
+                    Stance stance = predict(testExamples[idx].m_feature, excluded_class);
 
                     testInsts[idx].evaluate(stance, favor, against);
 
@@ -325,6 +335,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
 
             float targetFMeasure = devAvg;
             if (m_options.saveIntermediate && targetFMeasure > bestDIS) {
+      if (m_options.saveIntermediate && targetMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
                     << " now is " << targetFMeasure << ". Saving model file.." << std::endl;
                 std::cout << "laozhongyi_" << targetFMeasure << std::endl;
@@ -337,10 +348,10 @@ void Classifier::train(const string &trainFile, const string &devFile,
     }
 }
 
-Stance Classifier::predict(const Feature &feature) {
+Stance Classifier::predict(const Feature &feature, int excluded_class) {
     //assert(features.size() == words.size());
     Stance stance;
-    m_driver.predict(feature, stance);
+    m_driver.predict(feature, stance, excluded_class);
     return stance;
 }
 
@@ -357,7 +368,7 @@ void Classifier::test(const string &testFile, const string &outputFile,
     vector<Instance> testInstResults;
     Metric favor, against;
     for (int idx = 0; idx < testExamples.size(); idx++) {
-        Stance stance = predict(testExamples[idx].m_feature);
+        Stance stance = predict(testExamples[idx].m_feature, -1);
         testInsts[idx].evaluate(stance, favor, against);
         Instance curResultInst;
         curResultInst.copyValuesFrom(testInsts[idx]);
