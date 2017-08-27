@@ -92,16 +92,10 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
 
 
 void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
-<<<<<<< HEAD
   feat.m_tweet_words = pInstance->m_tweet_words;
   feat.m_target_words = pInstance->m_target_words;
   feat.m_sparse_feats = pInstance->m_sparse_feats;
   feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
-=======
-    feat.m_tweet_words = pInstance->m_tweet_words;
-    feat.m_target_words = pInstance->m_target_words;
-    feat.m_sparse_feats = pInstance->m_sparse_feats;
->>>>>>> origin/postprocess
 }
 
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
