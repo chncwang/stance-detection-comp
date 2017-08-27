@@ -90,22 +90,24 @@ public:
     inline void forward(const Feature &feature, bool bTrain = false) {
         _graph->train = bTrain;
 
-        //for (int i = 0; i < feature.m_target_words.size(); ++i) {
-        //    _target_nodes.at(i).forward(_graph, feature.m_target_words.at(i));
-        //}
-        //std::vector<PNode> target_nodes_ptrs = toPointers<LookupNode, Node>(_target_nodes, feature.m_target_words.size());
-        //_left_to_right_target_lstm.forward(_graph, target_nodes_ptrs);
-        //_right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
-        //for (int i = 0; i < feature.m_target_words.size(); ++i) {
-        //    _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
-        //}
-        //std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
+        for (int i = 0; i < feature.m_target_words.size(); ++i) {
+            _target_nodes.at(i).forward(_graph, feature.m_target_words.at(i));
+        }
+        std::vector<PNode> target_nodes_ptrs = toPointers<LookupNode, Node>(_target_nodes, feature.m_target_words.size());
+        _left_to_right_target_lstm.forward(_graph, target_nodes_ptrs);
+        _right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
+        for (int i = 0; i < feature.m_target_words.size(); ++i) {
+            _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
+        }
+        std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
+        _target_pool.forward(_graph, target_lstm_ptrs);
 
         for (int i = 0; i < feature.m_target_tfidf_words.size(); ++i) {
             _target_tfidf_nodes.at(i).forward(_graph, feature.m_target_tfidf_words.at(i));
         }
 
-        _target_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words.size()));
+        _tfidf_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words.size()));
+        _pool_concat_node.forward(_graph, &_tfidf_pool, &_target_pool);
 
         for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
             _tweet_nodes.at(i).forward(_graph, feature.m_tweet_words.at(i));
@@ -120,7 +122,7 @@ public:
         }
 
         std::vector<PNode> lstm_ptrs = toPointers<ConcatNode, Node>(_tweet_lstm_nodes, feature.m_tweet_words.size());
-        _attention_builder.forward(_graph, lstm_ptrs, &_target_pool);
+        _attention_builder.forward(_graph, lstm_ptrs, &_pool_concat_node);
 
         _neural_output.forward(_graph, &_attention_builder._hidden);
     }
