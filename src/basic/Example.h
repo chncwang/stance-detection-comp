@@ -72,7 +72,6 @@ vector<int> getClassBalancedIndexes(const std::vector<Example> &examples, const 
     }
 
     std::random_shuffle(indexes.begin(), indexes.end());
-    assert(indexes.size() == 3 * minCounter);
     return indexes;
 }
 
