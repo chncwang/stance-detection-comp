@@ -1,7 +1,7 @@
-dropProb = 0.2
-batchSize = 1
-wordCutOff = 0
-wordEmbFineTune = true
+dropProb = 0.5
+batchSize = 32
+wordCutOff = 4
+wordEmbFineTune = false
 maxIter = 1000
 maxInstance = -1
 outBest = .debug
