@@ -20,7 +20,9 @@ public:
     LSTM1Builder _right_to_left_target_lstm;
     std::vector<ConcatNode> _tweet_lstm_nodes;
     std::vector<ConcatNode> _target_lstm_nodes;
+    MaxPoolNode _tfidf_pool;
     MaxPoolNode _target_pool;
+    ConcatNode _pool_concat_node;
     AttentionBuilder _attention_builder;
 
     Graph *_graph;
@@ -41,6 +43,7 @@ public:
         _target_lstm_nodes.resize(length_upper_bound);
         _attention_builder.resize(length_upper_bound);
         _target_pool.setParam(length_upper_bound);
+        _tfidf_pool.setParam(length_upper_bound);
     }
 
 public:
@@ -73,7 +76,8 @@ public:
         }
 
         _target_pool.init(opts.hiddenSize * 2, -1);
-        _target_pool.init(opts.wordDim, -1);
+        _tfidf_pool.init(opts.wordDim, -1);
+        _pool_concat_node.init(opts.hiddenSize * 2 + opts.wordDim, -1);
         _attention_builder.init(&model._attention_params);
 
         _neural_output.init(opts.labelSize, -1);

@@ -55,6 +55,8 @@ public:
     void exportModelParams(ModelUpdate& ada){
         words.exportAdaParams(ada);
         olayer_linear.exportAdaParams(ada);
+        target_left_to_right_lstm_params.exportAdaParams(ada);
+        target_right_to_left_lstm_params.exportAdaParams(ada);
         tweet_left_to_right_lstm_params.exportAdaParams(ada);
         tweet_right_to_left_lstm_params.exportAdaParams(ada);
         target_left_to_right_lstm_params.exportAdaParams(ada);
