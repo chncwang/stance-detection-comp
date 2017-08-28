@@ -36,7 +36,7 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
             if (m_word_stats.find(normalizedWord) == m_word_stats.end()) {
-                m_word_stats.insert(std::pair<std::string, int>(normalizedWord, 0));
+                m_word_stats.insert(std::pair<std::string, int>(normalizedWord, 1));
             } else {
                 m_word_stats.at(normalizedWord) += 1;
             }
