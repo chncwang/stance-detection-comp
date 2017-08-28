@@ -32,6 +32,10 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
+        for (const string &w : pInstance->m_tweet_words) {
+            words.push_back(&w);
+        }
+
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
