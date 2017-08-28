@@ -72,6 +72,10 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
+        for (const string &w : pInstance->m_target_tfidf_words) {
+            words.push_back(&w);
+        }
+
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
