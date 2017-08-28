@@ -74,10 +74,6 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-        for (const string &w : pInstance->m_target_tfidf_words) {
-            words.push_back(&w);
-        }
-
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
@@ -101,7 +97,6 @@ void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
   feat.m_tweet_words = pInstance->m_tweet_words;
   feat.m_target_words = pInstance->m_target_words;
   feat.m_sparse_feats = pInstance->m_sparse_feats;
-  feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
 }
 
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {

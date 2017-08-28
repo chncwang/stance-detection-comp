@@ -34,7 +34,7 @@ public:
         tweet_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         target_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         target_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
-        _attention_params.initial(opts.hiddenSize * 2, opts.hiddenSize * 2 + opts.wordDim);
+        _attention_params.initial(opts.hiddenSize * 2, opts.hiddenSize * 2);
         return true;
     }
 
