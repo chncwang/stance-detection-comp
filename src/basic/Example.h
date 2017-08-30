@@ -37,7 +37,7 @@ vector<int> getClassBalancedIndexes(const std::vector<Example> &examples) {
 		std::random_shuffle(v.begin(), v.end());
 	}
 
-	std::array<int, 3> counters = { classSpecifiedIndexesArr.at(0).size(), classSpecifiedIndexesArr.at(1).size(), classSpecifiedIndexesArr.at(2).size() };
+	std::array<int, 3> counters = {static_cast<int>(classSpecifiedIndexesArr.at(0).size()), static_cast<int>(classSpecifiedIndexesArr.at(1).size()), static_cast<int>(classSpecifiedIndexesArr.at(2).size()) };
 
 	int minCounter = *std::min_element(counters.begin(), counters.end());
 	std::vector<int> indexes;
