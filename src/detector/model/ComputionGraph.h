@@ -13,6 +13,11 @@ public:
     std::vector<LookupNode> _tweet_nodes;
     std::vector<LookupNode> _target_nodes;
     std::vector<LookupNode> _target_tfidf_nodes;
+
+    LSTM1Builder _left_to_right_tfidf_lstm;
+    LSTM1Builder _right_to_left_tfidf_lstm;
+    std::vector<ConcatNode> _tfidf_lstm_nodes;
+
     UniNode _neural_output;
     LSTM1Builder _left_to_right_tweet_lstm;
     LSTM1Builder _right_to_left_tweet_lstm;
@@ -35,6 +40,9 @@ public:
     void createNodes(int length_upper_bound) {
         _target_nodes.resize(length_upper_bound);
         _tweet_nodes.resize(length_upper_bound);
+        _left_to_right_tfidf_lstm.resize(length_upper_bound);
+        _right_to_left_tfidf_lstm.resize(length_upper_bound);
+        _tfidf_lstm_nodes.resize(length_upper_bound);
         _left_to_right_tweet_lstm.resize(length_upper_bound);
         _right_to_left_tweet_lstm.resize(length_upper_bound);
         _left_to_right_target_lstm.resize(length_upper_bound);
@@ -65,10 +73,16 @@ public:
         }
         _tfidf_uninode.init(opts.hiddenSize, opts.dropProb);
         _tfidf_uninode.setParam(&model._uni_params);
+        _right_to_left_tfidf_lstm.init(&model.tfidf_right_to_left_lstm_params, opts.dropProb, true);
+
         _left_to_right_target_lstm.init(&model.target_left_to_right_lstm_params, opts.dropProb, true);
         _right_to_left_target_lstm.init(&model.target_right_to_left_lstm_params, opts.dropProb, false);
         _left_to_right_tweet_lstm.init(&model.tweet_left_to_right_lstm_params, opts.dropProb, true);
         _right_to_left_tweet_lstm.init(&model.tweet_right_to_left_lstm_params, opts.dropProb, false);
+
+        for (auto &n : _tfidf_lstm_nodes) {
+            n.init(opts.hiddenSize * 2, -1);
+        }
 
         for (auto &n : _tweet_lstm_nodes) {
             n.init(opts.hiddenSize * 2, -1);
@@ -79,7 +93,7 @@ public:
         }
 
         _target_pool.init(opts.hiddenSize * 2, -1);
-        _tfidf_pool.init(opts.wordDim, -1);
+        _tfidf_pool.init(opts.hiddenSize * 2, -1);
         _pool_concat_node.init(opts.hiddenSize * 3, -1);
         _attention_builder.init(&model._attention_params);
 
@@ -101,16 +115,21 @@ public:
         _right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
         for (int i = 0; i < feature.m_target_words.size(); ++i) {
             _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
-        } std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
+        }
+        std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
         _target_pool.forward(_graph, target_lstm_ptrs);
 
         for (int i = 0; i < feature.m_target_tfidf_words->size(); ++i) {
             _target_tfidf_nodes.at(i).forward(_graph, feature.m_target_tfidf_words->at(i));
         }
-
-        _tfidf_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words->size()));
+        std::vector<PNode> tfidf_nodes_ptrs = toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words->size());
+        _left_to_right_tfidf_lstm.forward(_graph, tfidf_nodes_ptrs);
         _tfidf_uninode.forward(_graph, &_tfidf_pool);
         _pool_concat_node.forward(_graph, &_tfidf_uninode, &_target_pool);
+            _tfidf_lstm_nodes.at(i).forward(_graph, &_left_to_right_tfidf_lstm._hiddens.at(i), &_right_to_left_tfidf_lstm._hiddens.at(i));
+        }
+        std::vector<PNode> tfidf_lstm_ptrs = toPointers<ConcatNode, Node>(_tfidf_lstm_nodes, feature.m_target_tfidf_words->size());
+        _tfidf_pool.forward(_graph, tfidf_lstm_ptrs);
 
         for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
             _tweet_nodes.at(i).forward(_graph, feature.m_tweet_words.at(i));
