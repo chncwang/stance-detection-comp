@@ -21,6 +21,7 @@ public:
     std::vector<ConcatNode> _tweet_lstm_nodes;
     std::vector<ConcatNode> _target_lstm_nodes;
     MaxPoolNode _tfidf_pool;
+    UniNode _tfidf_uninode;
     MaxPoolNode _target_pool;
     ConcatNode _pool_concat_node;
     AttentionBuilder _attention_builder;
@@ -62,6 +63,8 @@ public:
             n.init(opts.wordDim, opts.dropProb);
             n.setParam(&model.words);
         }
+        _tfidf_uninode.init(opts.hiddenSize, opts.dropProb);
+        _tfidf_uninode.setParam(&model._uni_params);
         _left_to_right_target_lstm.init(&model.target_left_to_right_lstm_params, opts.dropProb, true);
         _right_to_left_target_lstm.init(&model.target_right_to_left_lstm_params, opts.dropProb, false);
         _left_to_right_tweet_lstm.init(&model.tweet_left_to_right_lstm_params, opts.dropProb, true);
@@ -77,7 +80,7 @@ public:
 
         _target_pool.init(opts.hiddenSize * 2, -1);
         _tfidf_pool.init(opts.wordDim, -1);
-        _pool_concat_node.init(opts.hiddenSize * 2 + opts.wordDim, -1);
+        _pool_concat_node.init(opts.hiddenSize * 3, -1);
         _attention_builder.init(&model._attention_params);
 
         _neural_output.init(opts.labelSize, -1);
@@ -106,7 +109,8 @@ public:
         }
 
         _tfidf_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words->size()));
-        _pool_concat_node.forward(_graph, &_tfidf_pool, &_target_pool);
+        _tfidf_uninode.forward(_graph, &_tfidf_pool);
+        _pool_concat_node.forward(_graph, &_tfidf_uninode, &_target_pool);
 
         for (int i = 0; i < feature.m_tweet_words.size(); ++i) {
             _tweet_nodes.at(i).forward(_graph, feature.m_tweet_words.at(i));

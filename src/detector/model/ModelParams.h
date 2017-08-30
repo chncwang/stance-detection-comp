@@ -14,6 +14,7 @@ public:
     LSTM1Params tweet_right_to_left_lstm_params;
     LSTM1Params target_left_to_right_lstm_params;
     LSTM1Params target_right_to_left_lstm_params;
+    UniParams _uni_params;
     AttentionParams _attention_params;
     MySoftMaxLoss loss;
 
@@ -34,7 +35,8 @@ public:
         tweet_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         target_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         target_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
-        _attention_params.initial(opts.hiddenSize * 2, opts.hiddenSize * 2 + opts.wordDim);
+        _uni_params.initial(opts.hiddenSize, opts.wordDim);
+        _attention_params.initial(opts.hiddenSize * 2, opts.hiddenSize * 3);
         return true;
     }
 
@@ -59,6 +61,7 @@ public:
         target_right_to_left_lstm_params.exportAdaParams(ada);
         tweet_left_to_right_lstm_params.exportAdaParams(ada);
         tweet_right_to_left_lstm_params.exportAdaParams(ada);
+        _uni_params.exportAdaParams(ada);
         _attention_params.exportAdaParams(ada);
     }
 
