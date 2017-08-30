@@ -63,7 +63,6 @@ public:
 	vector<string> m_sparse_feats;
 	Stance m_stance;
 	std::vector<std::string> m_target_words;
-    std::vector<std::string> m_target_tfidf_words;
 };
 
 std::string Instance::tostring() {
