@@ -2,6 +2,7 @@
 #include "Stance.h"
 
 #include <chrono> 
+#include <unordered_set>
 #include "Argument_helper.h"
 #include "Reader.h"
 
@@ -32,11 +33,15 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
+//        for (const string &w : pInstance->m_target_tfidf_words) {
+//            words.push_back(&w);
+//        }
+
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
             if (m_word_stats.find(normalizedWord) == m_word_stats.end()) {
-                m_word_stats.insert(std::pair<std::string, int>(normalizedWord, 0));
+                m_word_stats.insert(std::pair<std::string, int>(normalizedWord, 1));
             } else {
                 m_word_stats.at(normalizedWord) += 1;
             }
@@ -72,15 +77,15 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-        for (const string &w : pInstance->m_target_tfidf_words) {
-            words.push_back(&w);
-        }
+//        for (const string &w : pInstance->m_target_tfidf_words) {
+//            words.push_back(&w);
+//        }
 
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
             if (m_word_stats.find(normalizedWord) == m_word_stats.end()) {
-                m_word_stats.insert(std::pair<std::string, int>(normalizedWord, 0));
+                m_word_stats.insert(std::pair<std::string, int>(normalizedWord, 1));
             } else {
                 m_word_stats.at(normalizedWord) += 1;
             }

@@ -20,7 +20,7 @@ public:
     LSTM1Builder _right_to_left_target_lstm;
     std::vector<ConcatNode> _tweet_lstm_nodes;
     std::vector<ConcatNode> _target_lstm_nodes;
-    AvgPoolNode _tfidf_pool;
+    MaxPoolNode _tfidf_pool;
     MaxPoolNode _target_pool;
     ConcatNode _pool_concat_node;
     AttentionBuilder _attention_builder;
@@ -98,8 +98,7 @@ public:
         _right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
         for (int i = 0; i < feature.m_target_words.size(); ++i) {
             _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
-        }
-        std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
+        } std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
         _target_pool.forward(_graph, target_lstm_ptrs);
 
         for (int i = 0; i < feature.m_target_tfidf_words.size(); ++i) {
