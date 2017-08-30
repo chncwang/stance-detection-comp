@@ -101,11 +101,11 @@ public:
         } std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
         _target_pool.forward(_graph, target_lstm_ptrs);
 
-        for (int i = 0; i < feature.m_target_tfidf_words.size(); ++i) {
-            _target_tfidf_nodes.at(i).forward(_graph, feature.m_target_tfidf_words.at(i));
+        for (int i = 0; i < feature.m_target_tfidf_words->size(); ++i) {
+            _target_tfidf_nodes.at(i).forward(_graph, feature.m_target_tfidf_words->at(i));
         }
 
-        _tfidf_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words.size()));
+        _tfidf_pool.forward(_graph, toPointers<LookupNode, Node>(_target_tfidf_nodes, feature.m_target_tfidf_words->size()));
         _pool_concat_node.forward(_graph, &_tfidf_pool, &_target_pool);
 
         for (int i = 0; i < feature.m_tweet_words.size(); ++i) {

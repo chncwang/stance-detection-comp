@@ -33,9 +33,9 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-//        for (const string &w : pInstance->m_target_tfidf_words) {
-//            words.push_back(&w);
-//        }
+        for (const string &w : *pInstance->m_target_tfidf_words) {
+            words.push_back(&w);
+        }
 
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
@@ -77,9 +77,9 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-//        for (const string &w : pInstance->m_target_tfidf_words) {
-//            words.push_back(&w);
-//        }
+        //        for (const string &w : pInstance->m_target_tfidf_words) {
+        //            words.push_back(&w);
+        //        }
 
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
@@ -101,10 +101,9 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
 
 
 void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
-  feat.m_tweet_words = pInstance->m_tweet_words;
-  feat.m_target_words = pInstance->m_target_words;
-  feat.m_sparse_feats = pInstance->m_sparse_feats;
-  feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
+    feat.m_tweet_words = pInstance->m_tweet_words;
+    feat.m_target_words = pInstance->m_target_words;
+    feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
 }
 
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
@@ -168,7 +167,14 @@ void Classifier::train(const string &trainFile, const string &devFile,
     initialExamples(testInsts, testExamples);
 
     m_word_stats[unknownkey] = m_options.wordCutOff + 1;
-    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff);
+    std::unordered_set<std::string> tfidf_words;
+    for (int i = 0; i < 6; ++i) {
+        for (const std::string &w : getTfidfWords().at(i)) {
+            tfidf_words.insert(w);
+        }
+    }
+
+    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff, tfidf_words);
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,

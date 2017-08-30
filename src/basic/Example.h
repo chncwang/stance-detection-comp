@@ -16,15 +16,7 @@ public:
 	vector<std::string> m_tweet_words;
 	vector<std::string> m_target_words;
 	vector<std::string> m_sparse_feats;
-    vector<std::string> m_target_tfidf_words;
-public:
-	void clear()
-	{
-		m_tweet_words.clear();
-		m_sparse_feats.clear();
-		m_target_words.clear();
-        m_target_tfidf_words.clear();
-	}
+    const vector<std::string> * m_target_tfidf_words;
 };
 
 class Example
@@ -32,11 +24,6 @@ class Example
 public:
 	Feature m_feature;
 	Stance m_stance;
-
-	void clear()
-	{
-		m_feature.clear();
-	}
 };
 
 vector<int> getClassBalancedIndexes(const std::vector<Example> &examples) {
