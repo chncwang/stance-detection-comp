@@ -1,6 +1,6 @@
-dropProb = -1
-batchSize = 8
-wordCutOff = 4
+dropProb = 0.2
+batchSize = 64
+wordCutOff = 3
 wordEmbFineTune = false
 maxIter = 1000
 maxInstance = -1
@@ -10,4 +10,4 @@ wordEmbSize = 100
 adaAlpha = 0.001
 postProcess = true
 ratios = 1:1:1
-wordFile = /home/wqs/skip_nostop_single_100features_5minwords_5context_big.txt
+wordFile = /home/wqs/glove.twitter.27B.100d.txt
