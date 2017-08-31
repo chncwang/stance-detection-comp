@@ -43,6 +43,8 @@ public:
         _target_lstm_nodes.resize(length_upper_bound);
         _attention_builder.resize(length_upper_bound);
         _target_pool.setParam(length_upper_bound);
+        _target_tfidf_nodes.resize(length_upper_bound);
+        _tfidf_pool.setParam(length_upper_bound);
     }
 
 public:

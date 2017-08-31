@@ -37,6 +37,7 @@ public:
 		m_tweet_words = anInstance.m_tweet_words;
 		m_stance = anInstance.m_stance;
 		m_target_words = anInstance.m_target_words;
+        m_target_tfidf_words = anInstance.m_target_tfidf_words;
 	}
 
 	std::string tostring();

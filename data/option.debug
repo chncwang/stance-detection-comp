@@ -1,5 +1,5 @@
 dropProb = 0.2
-batchSize = 64
+batchSize = 1
 wordCutOff = 3
 wordEmbFineTune = false
 maxIter = 1000
@@ -10,4 +10,4 @@ wordEmbSize = 100
 adaAlpha = 0.001
 postProcess = true
 ratios = 1:1:1
-wordFile = /home/wqs/glove.twitter.27B.100d.txt
+#wordFile = /home/wqs/glove.twitter.27B.100d.txt
