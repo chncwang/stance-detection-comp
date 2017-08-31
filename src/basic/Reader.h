@@ -32,27 +32,27 @@ void readLineToInstance(const string &line, Instance *instance) {
 		if (index <= 8) {
 			string firstWord = targetWordVectors.at(i).at(0);
 			if (firstWord == "Atheism") {
-				instance->m_target_words = {"#atheism"};
+				instance->m_target_words = {"atheism"};
                 instance->m_target_tfidf_words = &getTfidfWords().at(0);
 			}
 			else if (firstWord == "Climate") {
-				instance->m_target_words = {"#climatechange"};
+				instance->m_target_words = {"climate", "change", "is", "a", "real", "concern"};
                 instance->m_target_tfidf_words = &getTfidfWords().at(1);
 			}
 			else if (firstWord == "Feminist") {
-				instance->m_target_words = { "#feminism" };
+				instance->m_target_words = { "feminist", "movement" };
                 instance->m_target_tfidf_words = &getTfidfWords().at(2);
 			}
 			else if (firstWord == "Hillary") {
-				instance->m_target_words = {"#hillaryclinton"};
+				instance->m_target_words = {"hillary", "clinton"};
                 instance->m_target_tfidf_words = &getTfidfWords().at(3);
 			}
 			else if (firstWord == "Legalization") {
-				instance->m_target_words = {"#prochoice"};
+				instance->m_target_words = {"legalization", "of", "abortion"};
                 instance->m_target_tfidf_words = &getTfidfWords().at(4);
 			}
 			else if (firstWord == "Donald") {
-				instance->m_target_words = { "#donaldtrump" };
+				instance->m_target_words = { "donald", "trump" };
                 instance->m_target_tfidf_words = &getTfidfWords().at(5);
 			}
 			else {
