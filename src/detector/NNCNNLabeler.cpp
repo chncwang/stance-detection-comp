@@ -160,7 +160,8 @@ void Classifier::train(const string &trainFile, const string &devFile,
     initialExamples(testInsts, testExamples);
 
     m_word_stats[unknownkey] = m_options.wordCutOff + 1;
-    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff);
+    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff,
+            std::unordered_set<std::string>());
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
@@ -326,9 +327,9 @@ void Classifier::train(const string &trainFile, const string &devFile,
 
             double avgFMeasure = (favor.getFMeasure() + against.getFMeasure()) * 0.5;
       float targetMeasure = std::min<float>(avgFMeasure, testAvg);
-      if (m_options.saveIntermediate && targetMeasure > bestDIS) {
+      if (m_options.saveIntermediate && avgFMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
-          << " now is " << targetMeasure << ". Saving model file.." << std::endl;
+          << " now is " << avgFMeasure << ". Saving model file.." << std::endl;
         std::cout << "laozhongyi_" << targetMeasure << std::endl;
                 non_exceeds_time = 0;
         bestDIS = targetMeasure;
