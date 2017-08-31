@@ -10,8 +10,6 @@ public:
     LookupTable words; // should be initialized outside
     Alphabet wordAlpha; // should be initialized outside
     UniParams olayer_linear; // output
-    LSTM1Params tfidf_left_to_right_lstm_params;
-    LSTM1Params tfidf_right_to_left_lstm_params;
     LSTM1Params tweet_left_to_right_lstm_params;
     LSTM1Params tweet_right_to_left_lstm_params;
     LSTM1Params target_left_to_right_lstm_params;
@@ -33,14 +31,12 @@ public:
         opts.labelSize = 3;
         opts.inputSize = opts.hiddenSize * 2;
         olayer_linear.initial(opts.labelSize, opts.inputSize, true);
-        tfidf_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
-        tfidf_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         tweet_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         tweet_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         target_left_to_right_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         target_right_to_left_lstm_params.initial(opts.hiddenSize, opts.wordDim);
         _uni_params.initial(opts.hiddenSize, opts.wordDim);
-        _attention_params.initial(opts.hiddenSize * 2, opts.hiddenSize * 3);
+        _attention_params.initial(opts.hiddenSize * 2, opts.hiddenSize);
         return true;
     }
 
@@ -61,8 +57,6 @@ public:
     void exportModelParams(ModelUpdate& ada){
         words.exportAdaParams(ada);
         olayer_linear.exportAdaParams(ada);
-        tfidf_left_to_right_lstm_params.exportAdaParams(ada);
-        tfidf_right_to_left_lstm_params.exportAdaParams(ada);
         target_left_to_right_lstm_params.exportAdaParams(ada);
         target_right_to_left_lstm_params.exportAdaParams(ada);
         tweet_left_to_right_lstm_params.exportAdaParams(ada);
