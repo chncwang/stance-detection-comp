@@ -67,6 +67,7 @@ bool isTargetWordInTweet(const Feature &feature) {
 		keywords = {"abortion", "aborting"};
 	}
 	else {
+            std::cout << firstWord << std::endl;
 		abort();
 	}
 	for (const std::string &keyword : keywords) {

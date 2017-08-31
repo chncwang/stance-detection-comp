@@ -13,7 +13,6 @@ public:
     std::vector<LookupNode> _tweet_nodes;
     std::vector<LookupNode> _target_nodes;
     std::vector<LookupNode> _target_tfidf_nodes;
-
     UniNode _neural_output;
     LSTM1Builder _left_to_right_tweet_lstm;
     LSTM1Builder _right_to_left_tweet_lstm;
@@ -40,12 +39,10 @@ public:
         _right_to_left_tweet_lstm.resize(length_upper_bound);
         _left_to_right_target_lstm.resize(length_upper_bound);
         _right_to_left_target_lstm.resize(length_upper_bound);
-        _target_tfidf_nodes.resize(length_upper_bound);
         _tweet_lstm_nodes.resize(length_upper_bound);
         _target_lstm_nodes.resize(length_upper_bound);
         _attention_builder.resize(length_upper_bound);
         _target_pool.setParam(length_upper_bound);
-        _tfidf_pool.setParam(length_upper_bound);
     }
 
 public:

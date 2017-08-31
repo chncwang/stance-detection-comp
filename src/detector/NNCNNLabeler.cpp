@@ -3,6 +3,8 @@
 
 #include <chrono> 
 #include <unordered_set>
+
+#include <algorithm>
 #include "Argument_helper.h"
 #include "Reader.h"
 
@@ -76,10 +78,6 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
         for (const string &w : pInstance->m_tweet_words) {
             words.push_back(&w);
         }
-
-        //        for (const string &w : pInstance->m_target_tfidf_words) {
-        //            words.push_back(&w);
-        //        }
 
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
@@ -198,7 +196,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
         std::cout << "##### Iteration " << iter << std::endl;
         std::vector<int> indexes;
         if (true) {
-            indexes = getClassBalancedIndexes(trainExamples);
+      indexes = getClassBalancedIndexes(trainExamples, m_options.getRatios());
         } else {
             for (int i = 0; i < trainExamples.size(); ++i) {
                 indexes.push_back(i);
@@ -339,12 +337,13 @@ void Classifier::train(const string &trainFile, const string &devFile,
             }
 
             double avgFMeasure = (favor.getFMeasure() + against.getFMeasure()) * 0.5;
-            if (m_options.saveIntermediate && avgFMeasure > bestDIS) {
+      float targetMeasure = std::min<float>(avgFMeasure, testAvg);
+      if (m_options.saveIntermediate && avgFMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
-                    << " now is " << avgFMeasure << ". Saving model file.." << std::endl;
-                std::cout << "laozhongyi_" << avgFMeasure << std::endl;
+          << " now is " << avgFMeasure << ". Saving model file.." << std::endl;
+        std::cout << "laozhongyi_" << targetMeasure << std::endl;
                 non_exceeds_time = 0;
-                bestDIS = avgFMeasure;
+        bestDIS = targetMeasure;
                 writeModelFile(modelFile);
             }
         }
