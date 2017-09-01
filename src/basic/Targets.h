@@ -27,22 +27,22 @@ std::vector<vector<string> > getStanceTargetWordVectors() {
 bool isTargetWordInTweet(const Feature &feature) {
 	const std::string &firstWord = feature.m_target_words.at(0);
 	std::vector<std::string> keywords;
-	if (firstWord == "#hillaryclinton") {
+	if (firstWord == "hillary") {
 		keywords = {"hillary", "clinton"};
 	}
-	else if (firstWord == "#donaldtrump") {
+	else if (firstWord == "donald") {
 		keywords = {"donald", "trump"};
 	}
-	else if (firstWord == "#atheism") {
+	else if (firstWord == "atheism") {
 		keywords = { "atheism", "atheist" };
 	}
-	else if (firstWord == "#climatechange") {
+	else if (firstWord == "climate") {
 		keywords = {"climate"};
 	}
-	else if (firstWord == "#feminism") {
+	else if (firstWord == "feminist") {
 		keywords = {"feminism", "feminist"};
 	}
-	else if (firstWord == "#prochoice") {
+	else if (firstWord == "legalization") {
 		keywords = {"abortion", "aborting"};
 	}
 	else {

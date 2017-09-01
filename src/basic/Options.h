@@ -29,7 +29,6 @@ public:
 	int wordEmbSize;
 	int wordcontext;
 	bool wordEmbFineTune;
-    std::string ratios;
         std::string ratios;
     bool postProcess;
 
