@@ -73,7 +73,7 @@ void readLineToInstance(const string &line, Instance *instance) {
 		if (index <= 8) {
 			string firstWord = targetWordVectors.at(i).at(0);
 			if (firstWord == "Atheism") {
-				instance->m_target_words = {"atheist"};
+				instance->m_target_words = {"atheism"};
                                 instance->m_target_tfidf_words = {"atheist", "#atheism", "atheism", "#atheist", "an", "i", "god", "you", "is", "a", "the", "n't", "to", "religion", "and", "it", "of", "that", "@atheist_roo", "#god", "in", "#jesus", "@atheist_eh", "do", "'m", "are", "be", "not", "if", "but", "#religion", "for", "believe", "'s", "my", "dawkins", "does", "rt", "no", "he", "they", "#atheists", "who", "clock", "#bible", "@atheist_dh", "this", "have", "your", "was", "november", "am", "richard", "religious", "me", "islam", "about", "on", "so", "what", "atheists", "as", "with", "has", "&amp;", "at", "can", "all", "how", "someone", "really", "from", "we", "@cenkuygur", "like", "or", "by", "#islam", "@rickygervais", "people", "there", "christian", "faith", "@samharrisorg", "because", "boy", "just", "@skepticnikki", "quran", "'re", "harris", "compares", "man", "would", "know", "say", "one", "@atheist_krishna", "isis", "when"};
 			}
 			else if (firstWord == "Climate") {
