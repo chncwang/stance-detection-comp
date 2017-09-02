@@ -49,8 +49,6 @@ vector<int> getClassBalancedIndexes(const std::vector<Example> &examples, const 
         return indexes;
     }
 
-    }
-
     std::array<std::vector<int>, 3> classSpecifiedIndexesArr;
     for (int i = 0; i < examples.size(); ++i) {
         const Example &example = examples.at(i);

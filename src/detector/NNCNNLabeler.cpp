@@ -7,6 +7,7 @@
 #include "Argument_helper.h"
 #include "Reader.h"
 #include <algorithm>
+#include <unordered_set>
 
 void printBalancedStancesCounts(const std::vector<Example> &examples, const std::vector<int> &indexes) {
     std::array<int, 3> counts = { 0, 0, 0 };
@@ -44,6 +45,10 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
         }
 
         for (const string &w : pInstance->m_tweet_words) {
+            words.push_back(&w);
+        }
+
+        for (const string &w : pInstance->m_target_tfidf_words) {
             words.push_back(&w);
         }
 
@@ -141,9 +146,6 @@ void Classifier::train(const string &trainFile, const string &devFile,
     vector<Instance> rawtrainInsts = readInstancesFromFile(trainFile);
     vector<Instance> trainInsts;
     for (Instance &ins : rawtrainInsts) {
-        if (ins.m_target_words.at(0) == "#hillaryclinton") {
-            continue;
-        }
         trainInsts.push_back(ins);
     }
 
@@ -174,7 +176,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
     initialExamples(testInsts, testExamples);
 
     m_word_stats[unknownkey] = m_options.wordCutOff + 1;
-    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff);
+    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff, std::unordered_set<std::string>());
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
@@ -335,7 +337,6 @@ void Classifier::train(const string &trainFile, const string &devFile,
 
             float targetFMeasure = devAvg;
             if (m_options.saveIntermediate && targetFMeasure > bestDIS) {
-      if (m_options.saveIntermediate && targetMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
                     << " now is " << targetFMeasure << ". Saving model file.." << std::endl;
                 std::cout << "laozhongyi_" << targetFMeasure << std::endl;
