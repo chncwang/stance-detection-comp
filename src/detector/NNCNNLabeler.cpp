@@ -4,6 +4,7 @@
 #include <chrono> 
 
 #include <algorithm>
+#include <unordered_set>
 #include "Argument_helper.h"
 #include "Reader.h"
 
@@ -127,9 +128,6 @@ void Classifier::train(const string &trainFile, const string &devFile,
     vector<Instance> rawtrainInsts = readInstancesFromFile(trainFile);
     vector<Instance> trainInsts;
     for (Instance &ins : rawtrainInsts) {
-        if (ins.m_target_words.at(0) == "#hillaryclinton") {
-            continue;
-        }
         trainInsts.push_back(ins);
     }
 
@@ -160,7 +158,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
     initialExamples(testInsts, testExamples);
 
     m_word_stats[unknownkey] = m_options.wordCutOff + 1;
-    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff);
+    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff, std::unordered_set<std::string>());
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
