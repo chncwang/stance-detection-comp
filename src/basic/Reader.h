@@ -38,7 +38,7 @@ void readLineToInstance(const string &line, Instance *instance) {
                 instance->m_target_words = {"climate", "change", "is", "a", "real", "concern"};
             }
             else if (firstWord == "Feminist") {
-                instance->m_target_words = { "feminism", "movement" };
+                instance->m_target_words = { "feminist", "movement" };
             }
             else if (firstWord == "Hillary") {
                 instance->m_target_words = {"hillary", "clinton"};
