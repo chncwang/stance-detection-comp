@@ -335,13 +335,13 @@ void Classifier::train(const string &trainFile, const string &devFile,
                   }*/
             }
 
-            float targetFMeasure = devAvg;
-            if (m_options.saveIntermediate && targetFMeasure > bestDIS) {
+            float targetMeasure = devAvg;
+            if (m_options.saveIntermediate && targetMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
-                    << " now is " << targetFMeasure << ". Saving model file.." << std::endl;
-                std::cout << "laozhongyi_" << targetFMeasure << std::endl;
+                    << " now is " << targetMeasure << ". Saving model file.." << std::endl;
+                std::cout << "laozhongyi_" << targetMeasure << std::endl;
                 non_exceeds_time = 0;
-                bestDIS = targetFMeasure;
+                bestDIS = targetMeasure;
                 writeModelFile(modelFile);
             }
         }
