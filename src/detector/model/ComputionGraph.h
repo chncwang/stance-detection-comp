@@ -20,7 +20,7 @@ public:
     LSTM1Builder _right_to_left_target_lstm;
     std::vector<ConcatNode> _tweet_lstm_nodes;
     std::vector<ConcatNode> _target_lstm_nodes;
-    MaxPoolNode _tfidf_pool;
+    AvgPoolNode _tfidf_pool;
     UniNode _tfidf_uninode;
     MaxPoolNode _target_pool;
     ConcatNode _pool_concat_node;

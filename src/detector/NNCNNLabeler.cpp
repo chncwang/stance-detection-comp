@@ -194,7 +194,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
         std::cout << "##### Iteration " << iter << std::endl;
         std::vector<int> indexes;
         if (true) {
-      indexes = getClassBalancedIndexes(trainExamples, m_options.getRatios());
+            indexes = getClassBalancedIndexes(trainExamples, m_options.getRatios());
         } else {
             for (int i = 0; i < trainExamples.size(); ++i) {
                 indexes.push_back(i);
@@ -250,7 +250,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
         float accuracy = static_cast<float>(favorMetric.correct_label_count + againstMetric.correct_label_count + neuralMetric.correct_label_count) /
             (favorMetric.overall_label_count + againstMetric.overall_label_count + neuralMetric.overall_label_count);
         std::cout << "train set acc:" << accuracy << std::endl;
-        if (accuracy >= 0.80) {
+        if (accuracy >= 0.99) {
             std::cout << "train set is good enough, stop" << std::endl;
             exit(0);
         }
@@ -341,7 +341,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
           << " now is " << avgFMeasure << ". Saving model file.." << std::endl;
         std::cout << "laozhongyi_" << targetMeasure << std::endl;
                 non_exceeds_time = 0;
-        bestDIS = targetMeasure;
+        bestDIS = avgFMeasure;
                 writeModelFile(modelFile);
             }
         }

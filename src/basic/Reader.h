@@ -36,7 +36,7 @@ void readLineToInstance(const string &line, Instance *instance) {
                 instance->m_target_tfidf_words = &getTfidfWords().at(0);
 			}
 			else if (firstWord == "Climate") {
-				instance->m_target_words = {"climate" "change", "is", "a", "real", "concern"};
+				instance->m_target_words = {"climate", "change", "is", "a", "real", "concern"};
                 instance->m_target_tfidf_words = &getTfidfWords().at(1);
 			}
 			else if (firstWord == "Feminist") {
