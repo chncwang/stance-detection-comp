@@ -95,9 +95,9 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
 
 
 void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
-  feat.m_tweet_words = pInstance->m_tweet_words;
-  feat.m_target_words = pInstance->m_target_words;
-  feat.m_sparse_feats = pInstance->m_sparse_feats;
+    feat.m_tweet_words = pInstance->m_tweet_words;
+    feat.m_target_words = pInstance->m_target_words;
+    feat.m_sparse_feats = pInstance->m_sparse_feats;
 }
 
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
@@ -108,7 +108,7 @@ void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
 }
 
 void Classifier::initialExamples(const vector<Instance> &vecInsts,
-    vector<Example> &vecExams) {
+        vector<Example> &vecExams) {
     int numInstance;
     for (numInstance = 0; numInstance < vecInsts.size(); numInstance++) {
         const Instance *pInstance = &vecInsts[numInstance];
@@ -119,8 +119,8 @@ void Classifier::initialExamples(const vector<Instance> &vecInsts,
 }
 
 void Classifier::train(const string &trainFile, const string &devFile,
-    const string &testFile, const string &modelFile,
-    const string &optionFile) {
+        const string &testFile, const string &modelFile,
+        const string &optionFile) {
     if (optionFile != "")
         m_options.load(optionFile);
     m_options.showOptions();
@@ -165,10 +165,10 @@ void Classifier::train(const string &trainFile, const string &devFile,
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
-            m_options.wordFile, m_options.wordEmbFineTune);
+                m_options.wordFile, m_options.wordEmbFineTune);
     } else {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
-            m_options.wordEmbSize, m_options.wordEmbFineTune);
+                m_options.wordEmbSize, m_options.wordEmbFineTune);
     }
 
     m_driver._hyperparams.setRequared(m_options);
@@ -185,7 +185,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
         std::cout << "##### Iteration " << iter << std::endl;
         std::vector<int> indexes;
         if (true) {
-      indexes = getClassBalancedIndexes(trainExamples, m_options.getRatios());
+            indexes = getClassBalancedIndexes(trainExamples, m_options.getRatios());
         } else {
             for (int i = 0; i < trainExamples.size(); ++i) {
                 indexes.push_back(i);
@@ -241,7 +241,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
         float accuracy = static_cast<float>(favorMetric.correct_label_count + againstMetric.correct_label_count + neuralMetric.correct_label_count) /
             (favorMetric.overall_label_count + againstMetric.overall_label_count + neuralMetric.overall_label_count);
         std::cout << "train set acc:" << accuracy << std::endl;
-        if (accuracy >= 0.80) {
+        if (accuracy >= 0.99) {
             std::cout << "train set is good enough, stop" << std::endl;
             exit(0);
         }
@@ -310,7 +310,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
                 auto time_end = std::chrono::high_resolution_clock::now();
                 std::cout << "Test finished. Total time taken is: "
                     << std::chrono::duration<double>(
-                        time_end - time_start).count() << "s" << std::endl;
+                            time_end - time_start).count() << "s" << std::endl;
                 std::cout << "test:" << std::endl;
                 std::cout << "favor:" << std::endl;
                 favor.print();
@@ -326,13 +326,13 @@ void Classifier::train(const string &trainFile, const string &devFile,
             }
 
             double avgFMeasure = (favor.getFMeasure() + against.getFMeasure()) * 0.5;
-      float targetMeasure = std::min<float>(avgFMeasure, testAvg);
-      if (m_options.saveIntermediate && targetMeasure > bestDIS) {
+            float targetMeasure = std::min<float>(avgFMeasure, testAvg);
+            if (m_options.saveIntermediate && avgFMeasure > bestDIS) {
                 std::cout << "Exceeds best previous performance of " << bestDIS
-          << " now is " << targetMeasure << ". Saving model file.." << std::endl;
-        std::cout << "laozhongyi_" << targetMeasure << std::endl;
+                    << " now is " << targetMeasure << ". Saving model file.." << std::endl;
+                std::cout << "laozhongyi_" << targetMeasure << std::endl;
                 non_exceeds_time = 0;
-        bestDIS = targetMeasure;
+                bestDIS = avgFMeasure;
                 writeModelFile(modelFile);
             }
         }
@@ -348,7 +348,7 @@ Stance Classifier::predict(const Feature &feature, int excluded_class) {
 }
 
 void Classifier::test(const string &testFile, const string &outputFile,
-    const string &modelFile) {
+        const string &modelFile) {
     loadModelFile(modelFile);
     m_driver.TestInitial();
     vector<Instance> testInsts = readInstancesFromFile(testFile);
@@ -428,20 +428,20 @@ int main(int argc, char *argv[]) {
 
     ah.new_flag("l", "learn", "train or test", bTrain);
     ah.new_named_string("train", "trainCorpus", "named_string",
-        "training corpus to train a model, must when training", trainFile);
+            "training corpus to train a model, must when training", trainFile);
     ah.new_named_string("dev", "devCorpus", "named_string",
-        "development corpus to train a model, optional when training", devFile);
+            "development corpus to train a model, optional when training", devFile);
     ah.new_named_string("test", "testCorpus", "named_string",
-        "testing corpus to train a model or input file to test a model, optional when training and must when testing",
-        testFile);
+            "testing corpus to train a model or input file to test a model, optional when training and must when testing",
+            testFile);
     ah.new_named_string("model", "modelFile", "named_string",
-        "model file, must when training and testing", modelFile);
+            "model file, must when training and testing", modelFile);
     ah.new_named_string("option", "optionFile", "named_string",
-        "option file to train a model, optional when training", optionFile);
+            "option file to train a model, optional when training", optionFile);
     ah.new_named_string("output", "outputFile", "named_string",
-        "output file to test, must when testing", outputFile);
+            "output file to test, must when testing", outputFile);
     ah.new_named_int("memsize", "memorySize", "named_int",
-        "This argument decides the size of static memory allocation", memsize);
+            "This argument decides the size of static memory allocation", memsize);
 
     ah.process(argc, argv);
 
