@@ -24,10 +24,10 @@ public:
 	Classifier(int memsize);
 	virtual ~Classifier();
 
-	int createAlphabet(const vector<Instance>& vecTrainInsts);
+	int createAlphabet(const vector<Instance>& vecTrainInsts, const std::vector<Instance>& allInstances, const std::string &idfFile);
 	int addTestAlpha(const vector<Instance>& vecInsts);
 
-	void extractFeature(Feature& feat, const Instance* pInstance);
+	void extractFeature(Feature& feat, const Instance* pInstance, const std::array<std::vector<std::string>, 6> &tfidfWords);
 
 	void convert2Example(const Instance* pInstance, Example& exam);
 	void initialExamples(const vector<Instance>& vecInsts, vector<Example>& vecExams);

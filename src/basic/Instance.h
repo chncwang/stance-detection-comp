@@ -43,8 +43,8 @@ public:
 public:
 	vector<string> m_tweet_words;
 	Stance m_stance;
+    Target m_target;
 	std::vector<std::string> m_target_words;
-    const std::vector<std::string> *m_target_tfidf_words;
 };
 
 std::string Instance::tostring() {

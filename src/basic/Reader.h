@@ -12,6 +12,7 @@ using namespace std;
 
 #include "Instance.h"
 #include "Targets.h"
+#include "Tfidf.h"
 
 vector<string> readLines(const string &fullFileName) {
 	vector<string> lines;
@@ -32,28 +33,28 @@ void readLineToInstance(const string &line, Instance *instance) {
 		if (index <= 8) {
 			string firstWord = targetWordVectors.at(i).at(0);
 			if (firstWord == "Atheism") {
+                instance->m_target = Target::ATHEISM;
 				instance->m_target_words = {"atheism"};
-                instance->m_target_tfidf_words = &getTfidfWords().at(0);
 			}
 			else if (firstWord == "Climate") {
+                instance->m_target = Target::CLIMATE_CHANGE;
 				instance->m_target_words = {"climate", "change", "is", "a", "real", "concern"};
-                instance->m_target_tfidf_words = &getTfidfWords().at(1);
 			}
 			else if (firstWord == "Feminist") {
+                instance->m_target = Target::FEMINIST_MOVEMENT;
 				instance->m_target_words = { "feminist", "movement" };
-                instance->m_target_tfidf_words = &getTfidfWords().at(2);
 			}
 			else if (firstWord == "Hillary") {
+                instance->m_target = Target::HILLARY_CLINTON;
 				instance->m_target_words = {"hillary", "clinton"};
-                instance->m_target_tfidf_words = &getTfidfWords().at(3);
 			}
 			else if (firstWord == "Legalization") {
+                instance->m_target = Target::LEGALIZATION_OF_ABORTION;
 				instance->m_target_words = {"legalization", "of", "abortion"};
-                instance->m_target_tfidf_words = &getTfidfWords().at(4);
 			}
 			else if (firstWord == "Donald") {
+                instance->m_target = Target::DONALD_TRUMP;
 				instance->m_target_words = { "donald", "trump" };
-                instance->m_target_tfidf_words = &getTfidfWords().at(5);
 			}
 			else {
                 std::cout <<firstWord << std::endl;
@@ -132,7 +133,7 @@ void readLineToInstance(const string &line, Instance *instance) {
 	instance->m_tweet_words = move(words);
 }
 
-vector<Instance> readInstancesFromFile(const string &fullFileName) {
+vector<Instance> readInstancesFromFile(const string &fullFileName, const std::string &idfFileName) {
 	vector<string> lines = readLines(fullFileName);
 
 	vector<Instance> instances;
@@ -143,6 +144,16 @@ vector<Instance> readInstancesFromFile(const string &fullFileName) {
 		readLineToInstance(lines.at(i), &ins);
 		instances.push_back(move(ins));
 	}
+
+    std::array<std::vector<std::string>, 6> tfidfWords = getTfidfWords(idfFileName, instances);
+    for (int i = 0; i < 6; ++i) {
+        auto &v = tfidfWords.at(i);
+        std::cout << getStanceTargets().at(i) << std::endl;
+        for (const auto &w : v) {
+            std::cout << w << ", ";
+        }
+        std::cout << std::endl;
+    }
 
 	return instances;
 }

@@ -12,7 +12,7 @@ Classifier::Classifier(int memsize) : m_driver(memsize) {
 
 Classifier::~Classifier() {}
 
-int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
+int Classifier::createAlphabet(const vector<Instance> &vecInsts, const std::vector<Instance> &allInstances, const std::string &idfFile) {
     if (vecInsts.size() == 0) {
         std::cout << "training set empty" << std::endl;
         return -1;
@@ -33,7 +33,8 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-        for (const string &w : *pInstance->m_target_tfidf_words) {
+        const auto & tfidf_words = getTfidfWords(idfFile, allInstances);
+        for (const string &w : tfidf_words.at(pInstance->m_stance)) {
             words.push_back(&w);
         }
 
@@ -100,10 +101,10 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
 }
 
 
-void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
+void Classifier::extractFeature(Feature &feat, const Instance *pInstance, const std::array<std::vector<std::string>, 6> &tfidfWords) {
     feat.m_tweet_words = pInstance->m_tweet_words;
     feat.m_target_words = pInstance->m_target_words;
-    feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
+    feat.m_target_tfidf_words = &tfidfWords.at(pInstance->m_stance);
 }
 
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
