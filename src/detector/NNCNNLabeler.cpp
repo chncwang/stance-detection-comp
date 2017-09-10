@@ -25,7 +25,8 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
         const Instance *pInstance = &vecInsts[numInstance];
 
         vector<const string *> words;
-        for (const string &w : pInstance->m_target_words) {
+        const std::vector<std::string> &target_words = getStanceTargetWords(pInstance->m_target);
+        for (const string &w : target_words) {
             words.push_back(&w);
         }
 
@@ -33,7 +34,8 @@ int Classifier::createAlphabet(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-        for (const string &w : *pInstance->m_target_tfidf_words) {
+        const auto &tfidf_words = getTfidfWords().at(pInstance->m_target);
+        for (const string &w : tfidf_words) {
             words.push_back(&w);
         }
 
@@ -69,7 +71,8 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
         const Instance *pInstance = &vecInsts[numInstance];
 
         vector<const string *> words;
-        for (const string &w : pInstance->m_target_words) {
+        const auto & target_words = getStanceTargetWords(pInstance->m_target);
+        for (const string &w : target_words) {
             words.push_back(&w);
         }
 
@@ -77,10 +80,10 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
             words.push_back(&w);
         }
 
-        //        for (const string &w : pInstance->m_target_tfidf_words) {
-        //            words.push_back(&w);
-        //        }
-
+        const auto &tfidf_words = getTfidfWords().at(pInstance->m_target);
+        for (const string &w : tfidf_words) {
+            words.push_back(&w);
+        }
         for (const string *w : words) {
             string normalizedWord = normalize_to_lowerwithdigit(*w);
 
@@ -100,16 +103,9 @@ int Classifier::addTestAlpha(const vector<Instance> &vecInsts) {
 }
 
 
-void Classifier::extractFeature(Feature &feat, const Instance *pInstance) {
-    feat.m_tweet_words = pInstance->m_tweet_words;
-    feat.m_target_words = pInstance->m_target_words;
-    feat.m_target_tfidf_words = pInstance->m_target_tfidf_words;
-}
-
 void Classifier::convert2Example(const Instance *pInstance, Example &exam) {
     exam.m_stance = pInstance->m_stance;
-    Feature feature;
-    extractFeature(feature, pInstance);
+    Feature feature = Feature::valueOf(*pInstance);
     exam.m_feature = feature;
 }
 
@@ -134,7 +130,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
     vector<Instance> rawtrainInsts = readInstancesFromFile(trainFile);
     vector<Instance> trainInsts;
     for (Instance &ins : rawtrainInsts) {
-        if (ins.m_target_words.at(0) == "#hillaryclinton") {
+        if (ins.m_target == Target::HILLARY_CLINTON) {
             continue;
         }
         trainInsts.push_back(ins);
@@ -157,7 +153,6 @@ void Classifier::train(const string &trainFile, const string &devFile,
     }
 
     static vector<Instance> decodeInstResults;
-    static Instance curDecodeInst;
     bool bCurIterBetter = false;
 
     vector<Example> trainExamples, devExamples, testExamples;
@@ -269,16 +264,14 @@ void Classifier::train(const string &trainFile, const string &devFile,
             for (int idx = 0; idx < devExamples.size(); idx++) {
                 int excluded_class = -1;
                 if (m_options.postProcess) {
-                    excluded_class = isTargetWordInTweet(devExamples.at(idx).m_feature) ? Stance::NONE : -1;
+                    excluded_class = isTargetWordInTweet(devExamples.at(idx).m_feature.m_target, devExamples.at(idx).m_feature.m_tweet_words) ? Stance::NONE : -1;
                 }
                 Stance result = predict(devExamples[idx].m_feature, excluded_class);
 
                 devInsts[idx].evaluate(result, favor, against);
 
                 if (!m_options.outBest.empty()) {
-                    curDecodeInst.copyValuesFrom(devInsts[idx]);
-                    //curDecodeInst.assignLabel(result_label);
-                    decodeInstResults.push_back(curDecodeInst);
+                    decodeInstResults.push_back(devInsts[idx]);
                 }
             }
 
@@ -307,16 +300,14 @@ void Classifier::train(const string &trainFile, const string &devFile,
                 for (int idx = 0; idx < testExamples.size(); idx++) {
                     int excluded_class = -1;
                     if (m_options.postProcess) {
-                        excluded_class = isTargetWordInTweet(testExamples.at(idx).m_feature) ? Stance::NONE : -1;
+                        excluded_class = isTargetWordInTweet(testExamples.at(idx).m_feature.m_target, testExamples.at(idx).m_feature.m_tweet_words) ? Stance::NONE : -1;
                     }
                     Stance stance = predict(testExamples[idx].m_feature, excluded_class);
 
                     testInsts[idx].evaluate(stance, favor, against);
 
                     if (bCurIterBetter && !m_options.outBest.empty()) {
-                        curDecodeInst.copyValuesFrom(testInsts[idx]);
-                        //curDecodeInst.assignLabel(result_label);
-                        decodeInstResults.push_back(curDecodeInst);
+                        decodeInstResults.push_back(testInsts[idx]);
                     }
                 }
 
@@ -375,9 +366,8 @@ void Classifier::test(const string &testFile, const string &outputFile,
         Stance stance = predict(testExamples[idx].m_feature, -1);
         testInsts[idx].evaluate(stance, favor, against);
         Instance curResultInst;
-        curResultInst.copyValuesFrom(testInsts[idx]);
         //curResultInst.assignLabel(result_label);
-        testInstResults.push_back(curResultInst);
+        testInstResults.push_back(testInsts[idx]);
     }
     std::cout << "test:" << std::endl;
     std::cout << "favor:" << std::endl;

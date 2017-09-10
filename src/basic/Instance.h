@@ -32,27 +32,15 @@ public:
 		}
 	}
 
-	void copyValuesFrom(const Instance& anInstance)
-	{
-		m_tweet_words = anInstance.m_tweet_words;
-		m_stance = anInstance.m_stance;
-		m_target_words = anInstance.m_target_words;
-	}
-
 	std::string tostring();
 public:
 	vector<string> m_tweet_words;
 	Stance m_stance;
-	std::vector<std::string> m_target_words;
-    const std::vector<std::string> *m_target_tfidf_words;
+    Target m_target;
 };
 
 std::string Instance::tostring() {
 	string result = "target: ";
-	for (string & w : m_target_words) {
-		result += w + " ";
-	}
-	result += "\ntweet: ";
 
 	for (string & w : m_tweet_words) {
 		result += w + " ";

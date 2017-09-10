@@ -7,6 +7,8 @@
 #include <array>
 #include "Stance.h"
 #include <algorithm>
+#include "Targets.h"
+#include "Instance.h"
 
 using namespace std;
 
@@ -14,9 +16,14 @@ class Feature
 {
 public:
 	vector<std::string> m_tweet_words;
-	vector<std::string> m_target_words;
-	vector<std::string> m_sparse_feats;
-    const vector<std::string> * m_target_tfidf_words;
+    Target m_target;
+
+    static Feature valueOf(const Instance &ins) {
+        Feature feature;
+        feature.m_target = ins.m_target;
+        feature.m_tweet_words = ins.m_tweet_words;
+        return feature;
+    }
 };
 
 class Example
