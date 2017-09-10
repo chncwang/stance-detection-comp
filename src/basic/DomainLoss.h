@@ -1,0 +1,8 @@
+#ifndef STANCE_DECTION_COMP_DOMAIN_LOSS_H
+#define STANCE_DECTION_COMP_DOMAIN_LOSS_H
+
+class DomainLoss {
+
+};
+
+#endif
