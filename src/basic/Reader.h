@@ -32,30 +32,23 @@ void readLineToInstance(const string &line, Instance *instance) {
         if (index <= 8) {
             string firstWord = targetWordVectors.at(i).at(0);
             if (firstWord == "Atheism") {
-                instance->m_target_words = {"atheism"};
-            }
-            else if (firstWord == "Climate") {
-                instance->m_target_words = {"climate", "change", "is", "a", "real", "concern"};
-            }
-            else if (firstWord == "Feminist") {
-                instance->m_target_words = { "feminist", "movement" };
-            }
-            else if (firstWord == "Hillary") {
-                instance->m_target_words = {"hillary", "clinton"};
-            }
-            else if (firstWord == "Legalization") {
-                instance->m_target_words = {"legalization", "of", "abortion"};
-            }
-            else if (firstWord == "Donald") {
-                instance->m_target_words = { "donald", "trump" };
-            }
-            else {
-                std::cout <<firstWord << std::endl;
+                instance->m_target = Target::ATHEISM;
+            } else if (firstWord == "Climate") {
+                instance->m_target = Target::CLIMATE_CHANGE;
+            } else if (firstWord == "Feminist") {
+                instance->m_target = Target::FEMINIST_MOVEMENT;
+            } else if (firstWord == "Hillary") {
+                instance->m_target = Target::HILLARY_CLINTON;
+            } else if (firstWord == "Legalization") {
+                instance->m_target = Target::LEGALIZATION_OF_ABORTION;
+            } else if (firstWord == "Donald") {
+                instance->m_target = Target::DONALD_TRUMP;
+            } else {
+                std::cout << firstWord << std::endl;
                 abort();
             }
 
             tailIndex = index + target.size();
-            //cout << "Reader readLineToInstance tailIndex:" << tailIndex << endl;
             break;
         }
         ++i;
@@ -73,16 +66,15 @@ void readLineToInstance(const string &line, Instance *instance) {
         //                std::cout << "stanceStr:" << stanceStr <<std::endl;
         std::regex regex(stanceStr + "\r?$");
         for (auto it = std::sregex_iterator(line.begin(), line.end(), regex);
-                it != std::sregex_iterator();
-                ++it)
-        {
+            it != std::sregex_iterator();
+            ++it) {
             index = it->position();
             instance->m_stance = stance;
             break;
         }
     }
     if (index == string::npos) {
-        std::cout<< line << std::endl;
+        std::cout << line << std::endl;
         abort();
     }
 
