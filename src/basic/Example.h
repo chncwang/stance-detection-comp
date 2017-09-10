@@ -7,6 +7,8 @@
 #include <array>
 #include "Stance.h"
 #include <algorithm>
+#include "Targets.h"
+#include "Instance.h"
 
 using namespace std;
 
@@ -14,15 +16,14 @@ class Feature
 {
 public:
 	vector<std::string> m_tweet_words;
-	vector<std::string> m_target_words;
-	vector<std::string> m_sparse_feats;
+    Target m_target;
 
-	void clear()
-	{
-		m_tweet_words.clear();
-		m_sparse_feats.clear();
-		m_target_words.clear();
-	}
+    static Feature valueOf(const Instance &ins) {
+        Feature feature;
+        feature.m_target = ins.m_target;
+        feature.m_tweet_words = ins.m_tweet_words;
+        return feature;
+    }
 };
 
 class Example
@@ -30,11 +31,6 @@ class Example
 public:
 	Feature m_feature;
 	Stance m_stance;
-
-        void clear()
-        {
-            m_feature.clear();
-        }
 };
 
 vector<int> getClassBalancedIndexes(const std::vector<Example> &examples, const std::array<float, 3> &ratios) {

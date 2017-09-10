@@ -79,16 +79,17 @@ public:
     inline void forward(const Feature &feature, bool bTrain = false) {
         _graph->train = bTrain;
 
-        for (int i = 0; i < feature.m_target_words.size(); ++i) {
-            _target_nodes.at(i).forward(_graph, feature.m_target_words.at(i));
+        const auto &target_words = getStanceTargetWords(feature.m_target);
+        for (int i = 0; i < target_words.size(); ++i) {
+            _target_nodes.at(i).forward(_graph, target_words.at(i));
         }
-        std::vector<PNode> target_nodes_ptrs = toPointers<LookupNode, Node>(_target_nodes, feature.m_target_words.size());
+        std::vector<PNode> target_nodes_ptrs = toPointers<LookupNode, Node>(_target_nodes, target_words.size());
         _left_to_right_target_lstm.forward(_graph, target_nodes_ptrs);
         _right_to_left_target_lstm.forward(_graph, target_nodes_ptrs);
-        for (int i = 0; i < feature.m_target_words.size(); ++i) {
+        for (int i = 0; i < target_words.size(); ++i) {
             _target_lstm_nodes.at(i).forward(_graph, &_left_to_right_target_lstm._hiddens.at(i), &_right_to_left_target_lstm._hiddens.at(i));
         }
-        std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, feature.m_target_words.size());
+        std::vector<PNode> target_lstm_ptrs = toPointers<ConcatNode, Node>(_target_lstm_nodes, target_words.size());
         _target_pool.forward(_graph, target_lstm_ptrs);
 
         for (int i = 0; i < feature.m_tweet_words.size(); ++i) {

@@ -27,8 +27,6 @@ public:
 	int createAlphabet(const vector<Instance>& vecTrainInsts);
 	int addTestAlpha(const vector<Instance>& vecInsts);
 
-	void extractFeature(Feature& feat, const Instance* pInstance);
-
 	void convert2Example(const Instance* pInstance, Example& exam);
 	void initialExamples(const vector<Instance>& vecInsts, vector<Example>& vecExams);
 
