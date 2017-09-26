@@ -155,7 +155,7 @@ void Classifier::train(const string &trainFile, const string &devFile,
     initialExamples(testInsts, testExamples);
 
     m_word_stats[unknownkey] = m_options.wordCutOff + 1;
-    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff, std::unordered_set<std::string>());
+    m_driver._modelparams.wordAlpha.initial(m_word_stats, m_options.wordCutOff);
 
     if (m_options.wordFile != "") {
         m_driver._modelparams.words.initial(&m_driver._modelparams.wordAlpha,
